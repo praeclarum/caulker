@@ -1,0 +1,6 @@
+
+.DS_Store
+*.userprefs
+*.pidb
+Caulker/bin
+CaulkerDemo/bin
