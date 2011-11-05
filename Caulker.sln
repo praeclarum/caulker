@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaulkerDemo", "CaulkerDemo\CaulkerDemo.csproj", "{DDF8B65B-3A31-479F-B7B4-225FB6677729}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Caulker", "Caulker\Caulker.csproj", "{7C5ABECA-A834-448F-8A03-AE2C19791778}"
