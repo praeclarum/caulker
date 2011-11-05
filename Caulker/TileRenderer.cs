@@ -43,6 +43,8 @@ namespace Caulker
 				return _source;
 			}
 			set {
+				if (_source != null && _source.Name == value.Name) return;
+				
 				if (_textures != null) {
 					_textures.Close();
 				}

@@ -20,17 +20,20 @@ namespace CaulkerDemo
 	public partial class AppDelegate : UIApplicationDelegate
 	{
 		WorldView _worldView;
+		UIViewController _rootViewController;
 		
 		public override bool FinishedLaunching (UIApplication app, NSDictionary options)
 		{
+			_rootViewController = new UIViewController();
+			
 			//
-			// Create the view
+			// Create the root view
 			//
 			_worldView = new WorldView (window.Bounds) {
 				ShowSun = false,
 			};
-			window.AddSubview(_worldView);
-			window.SendSubviewToBack(_worldView);
+			_rootViewController.View.AddSubview (_worldView);
+			window.RootViewController = _rootViewController;
 			_worldView.Run(20);
 			
 			//

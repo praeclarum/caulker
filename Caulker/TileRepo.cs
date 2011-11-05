@@ -219,10 +219,10 @@ namespace Caulker
 			FindDiskTiles();
 			_continueWorkingInBackground = true;
 			BeginFrame();
-			for (var i = 0; i < 2; i++) {
-				var th = new Thread((ThreadStart)DownloadThread);
-				th.Start();
-			}
+
+			var th = new Thread((ThreadStart)DownloadThread);
+			th.Start();
+			
 			var lth = new Thread((ThreadStart)LoadThread);
 			lth.Start();
 		}
@@ -409,42 +409,46 @@ namespace Caulker
 		}
 		
 		void DownloadThread() {
-			while (_continueWorkingInBackground) {
-				TileCollectionItem q;
-				lock (_downloadingTiles) {
-					q = _downloadingTiles.GetHighestPriority();
-				}
+			
+			using (var pool = new MonoTouch.Foundation.NSAutoreleasePool()) {
 				
-				if (q == null) {
-					_wakeupDownloader.WaitOne(TimeSpan.FromSeconds(5));
-				}
-				else {
-					var req = q.Name;
-					var url = _source.GetTileUrl(req);
-					var filename = GetTilePath(req);
-					var tempFile = Path.GetTempFileName();
+				while (_continueWorkingInBackground) {
+					TileCollectionItem q;
+					lock (_downloadingTiles) {
+						q = _downloadingTiles.GetHighestPriority();
+					}
 					
-					var downloadedSuccessfully = Http.Download(url, tempFile);
-					
-					if (downloadedSuccessfully) {
-						try {
-							
-							File.Move(tempFile, filename);
-							
-							lock (_onDiskTiles) {
-								_onDiskTiles[req] = true;
-							}
-							lock (_downloadingTiles) {
-								_downloadingTiles.Remove(req);
-							}
-
-						}
-						catch (Exception) {							
-						}
+					if (q == null) {
+						_wakeupDownloader.WaitOne(TimeSpan.FromSeconds(5));
 					}
 					else {
-						// Download failed, let's chill out for a bit
-						_wakeupDownloader.WaitOne(TimeSpan.FromSeconds(5));
+						var req = q.Name;
+						var url = _source.GetTileUrl(req);
+						var filename = GetTilePath(req);
+						var tempFile = Path.GetTempFileName();
+						
+						var downloadedSuccessfully = Http.Download(url, tempFile);
+						
+						if (downloadedSuccessfully) {
+							try {
+								
+								File.Move(tempFile, filename);
+								
+								lock (_onDiskTiles) {
+									_onDiskTiles[req] = true;
+								}
+								lock (_downloadingTiles) {
+									_downloadingTiles.Remove(req);
+								}
+	
+							}
+							catch (Exception) {							
+							}
+						}
+						else {
+							// Download failed, let's chill out for a bit
+							_wakeupDownloader.WaitOne(TimeSpan.FromSeconds(5));
+						}
 					}
 				}
 			}

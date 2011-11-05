@@ -67,6 +67,10 @@ namespace Caulker {
 		Location _sunLoc;
 
 	    void Initialize() {
+			
+			LayerColorFormat    = EAGLColorFormat.RGBA8;
+			ContextRenderingApi = EAGLRenderingAPI.OpenGLES1;
+			
 			var now = DateTime.UtcNow;
 			_sunLoc = Location.SunLocation(now);
 	        Camera = new Camera();
@@ -288,15 +292,12 @@ namespace Caulker {
 		[Export ("initWithCoder:")]
 		public WorldView (NSCoder coder) : base (coder)
 		{
-			LayerRetainsBacking = false;
-			LayerColorFormat    = EAGLColorFormat.RGBA8;
-			ContextRenderingApi = EAGLRenderingAPI.OpenGLES1;
+			LayerRetainsBacking = true;
 			Initialize();
 		}
+		
 		public WorldView (RectangleF frame) : base (frame) {
-			LayerRetainsBacking = false;
-			LayerColorFormat    = EAGLColorFormat.RGBA8;
-			ContextRenderingApi = EAGLRenderingAPI.OpenGLES1;
+			LayerRetainsBacking = true;
 			Initialize();
 		}
 
