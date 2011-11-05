@@ -90,6 +90,8 @@ namespace Caulker {
 
 		protected override void OnRenderFrame(FrameEventArgs e)
 		{
+			base.OnRenderFrame (e);
+			
 			var sz = new Size((int)Frame.Width, (int)Frame.Height);
 			if (sz.Width != Size.Width) {
 				Size = sz;
@@ -156,19 +158,21 @@ namespace Caulker {
 			if (ShowSun) {
 				GL.Disable(All.Lighting);
 				GL.Disable(All.ColorMaterial);
+				
+//				if (_gesture == WorldView3d.GestureType.Rotating) {
+//					var verts = new Vector3[2];
+//					var ppp = Location.SunLocation(DateTime.UtcNow.AddHours(-12));
+//					verts[0] = ppp.ToPositionAboveSeaLevel(0);
+//					verts[1] = ppp.ToPositionAboveSeaLevel(1000);
+//					GL.Color4(0, 1.0f, 0, 1.0f);
+//					GL.VertexPointer(3, All.Float, 0, verts);
+//					GL.DrawArrays(All.Lines, 0, 2);			
+//					Console.WriteLine (Camera.LookAt);
+//					Console.WriteLine (ppp);
+//				}
+
 			}
 
-//			if (_gesture == WorldView3d.GestureType.Rotating) {
-//				var verts = new Vector3[2];
-//				var ppp = Location.SunLocation(DateTime.UtcNow.AddHours(-12));
-//				verts[0] = ppp.ToPositionAboveSeaLevel(0);
-//				verts[1] = ppp.ToPositionAboveSeaLevel(1000);
-//				GL.Color4(0, 1.0f, 0, 1.0f);
-//				GL.VertexPointer(3, All.Float, 0, verts);
-//				GL.DrawArrays(All.Lines, 0, 2);			
-//				Console.WriteLine (Camera.LookAt);
-//				Console.WriteLine (ppp);
-//			}
 			
 			SwapBuffers();
 		}

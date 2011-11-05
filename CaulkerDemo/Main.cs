@@ -34,7 +34,7 @@ namespace CaulkerDemo
 			};
 			_rootViewController.View.AddSubview (_worldView);
 			window.RootViewController = _rootViewController;
-			_worldView.Run(20);
+			_worldView.Run (4);
 			
 			//
 			// Add a layer of tiles
