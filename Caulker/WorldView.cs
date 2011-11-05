@@ -104,15 +104,35 @@ namespace Caulker {
 				WallTimeElapsed = t - _lastT
 			};
 			_lastT = t;
+			
+			//Console.WriteLine ("FPS {0:0}", 1.0 / time.WallTimeElapsed);
 	
-			GL.ClearColor (0/255.0f, 0/255.0f, 0/255.0f, 1.0f);
+			GL.ClearColor (158/255.0f, 207/255.0f, 237/255.0f, 1.0f);
 			GL.Clear((int)(All.DepthBufferBit | All.ColorBufferBit));
 			
+			//
+			// Set the common OpenGL state
+			//
 	        GL.Enable(All.Blend);
 	        GL.BlendFunc(All.SrcAlpha, All.OneMinusSrcAlpha);
 			GL.Enable(All.DepthTest);
 	        GL.EnableClientState(All.VertexArray);
 			
+			//
+			// Render the background
+			//
+			_background.Render();
+			
+			//
+			// Setup the 3D camera
+			//
+			Camera.SetViewport(Size.Width, Size.Height);
+	        CameraMan.Update(time);
+	        Camera.Execute(CameraMan);
+			
+			//
+			// Enable the sun
+			//
 			if (ShowSun) {
 				GL.Enable(All.Lighting);
 				GL.Enable(All.ColorMaterial);
@@ -121,17 +141,19 @@ namespace Caulker {
 				var sp = _sunLoc.ToPositionAboveSeaLevel(150000000);
 				GL.Light(All.Light0, All.Position, new float[]{sp.X,sp.Y,sp.Z,1});
 			}
-	
-	        _background.Render();
-	
-			Camera.SetViewport(Size.Width, Size.Height);
-	        CameraMan.Update(time);
-	        Camera.Execute(CameraMan);
 			
+			//
+			// Draw all the layers
+			//
 			foreach (var d in _draws) {
 				d.Draw(Camera, time);
 			}
-			
+
+			if (ShowSun) {
+				GL.Disable(All.Lighting);
+				GL.Disable(All.ColorMaterial);
+			}
+
 //			if (_gesture == WorldView3d.GestureType.Rotating) {
 //				var verts = new Vector3[2];
 //				var ppp = Location.SunLocation(DateTime.UtcNow.AddHours(-12));

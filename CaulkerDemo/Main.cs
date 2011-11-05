@@ -27,7 +27,7 @@ namespace CaulkerDemo
 			// Create the view
 			//
 			_worldView = new WorldView (window.Bounds) {
-				ShowSun = true,
+				ShowSun = false,
 			};
 			window.AddSubview(_worldView);
 			window.SendSubviewToBack(_worldView);
