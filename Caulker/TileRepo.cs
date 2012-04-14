@@ -193,7 +193,7 @@ namespace Caulker
 
 	public class TileTextureRepo
 	{
-		const int MaxInMemoryTextures = 150;
+		const int MaxInMemoryTextures = 200;
 		
 		string DataDir;
 		
@@ -232,7 +232,8 @@ namespace Caulker
 			RemoveTilesFromMemory();			
 		}
 		
-		public void FreeMemory() {
+		public void FreeMemory ()
+		{
 			RemoveTilesFromMemory();
 		}
 		
@@ -465,7 +466,9 @@ namespace Caulker
 			}
 		}
 		
-		void DeleteTextureMemory(int texture) {
+		void DeleteTextureMemory(int texture)
+		{
+			//System.Diagnostics.Debug.WriteLine (string.Format ("Delete Texture Memory {0}", texture));
 			GL.DeleteTextures(1, new int[1] { texture });
 		}				
 	}
@@ -476,7 +479,8 @@ namespace Caulker
 		A8
 	}
 
-	public class TextureData : IDisposable {
+	public class TextureData : IDisposable
+	{
 		public IntPtr Data { get; private set; }
 		public TexturePixelFormat PixelFormat { get; private set; }
 		public int Width { get; private set; }
@@ -489,14 +493,28 @@ namespace Caulker
 			Height = height;
 		}
 		
-		public void Dispose() {
+		~TextureData ()
+		{
+			Dispose (false);
+		}
+		
+		public void Dispose ()
+		{
+			Dispose (true);
+			GC.SuppressFinalize (this);
+		}
+		
+		protected virtual void Dispose (bool disposing)
+		{
 			if (Data != IntPtr.Zero) {
+				//System.Diagnostics.Debug.WriteLine ("Dispose in-memory tile");
 				Marshal.FreeHGlobal(Data);
 				Data = IntPtr.Zero;
 			}
 		}
 		
-		public int CreateGLTexture() {
+		public int CreateGLTexture()
+		{
 			var textures = new int[1];
 			GL.GenTextures(1, textures);
 			var texture = textures[0];

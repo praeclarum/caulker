@@ -59,13 +59,31 @@ namespace Caulker
 			Source = new OpenStreetMapTileSource();
 		}
 		
+		public void FreeMemory ()
+		{
+			Console.WriteLine ("OMG OMG OMG MEMORY");
+			_textures.FreeMemory ();
+		}
+		
 		int _lastZoom = -1;
 		int _prevZoom = -1;
 		DateTime _lastZoomFadeTime;
 		const double FadeSecs = 1.0;
 		
-		public void OnStopDrawing () {			
+		public void StopDrawing ()
+		{			
 			_textures.Close();
+		}
+		
+		public void LoadContent ()
+		{
+			using (var img = UIImage.FromFile("MissingTile.png")) {
+				MissingTileTexture = img.ToGLTexture();
+			}
+		}
+		
+		public void Update (SimTime t)
+		{
 		}
 		
 		public void Draw (Camera cam, SimTime t)
@@ -75,12 +93,6 @@ namespace Caulker
 			
 			_textures.BeginFrame();
 			_geometries.BeginFrame();
-			
-			if (MissingTileTexture == 0) {
-				using (var img = UIImage.FromFile("MissingTile.png")) {
-					MissingTileTexture = img.ToGLTexture();
-				}
-			}
 			
 			GL.EnableClientState(All.TextureCoordArray);
 			GL.EnableClientState(All.NormalArray);

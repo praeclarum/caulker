@@ -69,6 +69,8 @@
     <Compile Include="TileSource.cs" />
     <Compile Include="WorldView.cs" />
     <Compile Include="Http.cs" />
+    <Compile Include="IDrawable.cs" />
+    <Compile Include="SimTime.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

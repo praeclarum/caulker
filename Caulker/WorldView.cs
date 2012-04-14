@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010 Krueger Systems, Inc.
+// Copyright (c) 2010-2012 Krueger Systems, Inc.
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -37,20 +37,7 @@ using Caulker;
 
 namespace Caulker {
 	
-	public class SimTime
-	{
-		public DateTime Time { get; set; }
-		public DateTime WallTime { get; set; }
-		public double TimeElapsed { get; set; }
-		public double WallTimeElapsed { get; set; }
-	}
 
-	public interface IDrawable
-	{
-		void Draw (Camera cam, SimTime t);
-		void OnStopDrawing ();
-	}
-		
 	[MonoTouch.Foundation.Register("WorldView")]
 	public class WorldView : iPhoneOSGameView
 	{
@@ -60,7 +47,8 @@ namespace Caulker {
 
 		Background _background = new Background();
 	
-		List<IDrawable> _draws = new List<IDrawable>();
+		List<IDrawable> _drawables = new List<IDrawable> ();
+		List<IDrawable> _drawablesNeedingLoad = new List<IDrawable> ();
 		
 		public Camera Camera { get; private set; }
 		public CameraMan CameraMan { get; set; }
@@ -109,8 +97,8 @@ namespace Caulker {
 
         void HandleUnload (object sender, EventArgs e)
         {
-			foreach (var d in _draws) {
-				d.OnStopDrawing();
+			foreach (var d in _drawables) {
+				d.StopDrawing();
 			}
         }
 		
@@ -126,6 +114,14 @@ namespace Caulker {
 			GL.Oes.BindRenderbuffer(All.RenderbufferOes, _depthRenderbuffer);
 			GL.Oes.RenderbufferStorage(All.RenderbufferOes, All.DepthComponent16Oes, sz.Width, sz.Height);
 			GL.Oes.FramebufferRenderbuffer(All.FramebufferOes, All.DepthAttachmentOes, All.RenderbufferOes, _depthRenderbuffer);
+		}
+		
+		public void FreeMemory ()
+		{
+			MakeCurrent ();
+			foreach (var d in _drawables) {
+				d.FreeMemory ();
+			}
 		}
 		
 		#region DisplayLink support
@@ -167,6 +163,8 @@ namespace Caulker {
 		#endregion
 		
 		#region Drawing
+		
+		int frameCount = 0;
 
 		protected override void OnRenderFrame (FrameEventArgs e)
 		{
@@ -177,9 +175,19 @@ namespace Caulker {
 				Size = sz;
 			}
 			
-			MakeCurrent();
-			GL.Viewport (0, 0, Size.Width, Size.Height);
+			MakeCurrent ();
 			
+			//
+			// Initialize drawables
+			//
+			foreach (var d in _drawablesNeedingLoad) {
+				d.LoadContent ();
+			}
+			_drawablesNeedingLoad.Clear ();
+			
+			//
+			// Determine the current sim time
+			//
 			var t = new NSDate().SecondsSinceReferenceDate;
 			var wallNow = DateTime.UtcNow;
 			
@@ -193,6 +201,8 @@ namespace Caulker {
 			
 			//Console.WriteLine ("FPS {0:0}", 1.0 / time.WallTimeElapsed);
 	
+			GL.Viewport (0, 0, Size.Width, Size.Height);
+			
 			GL.ClearColor (158/255.0f, 207/255.0f, 237/255.0f, 1.0f);
 			GL.Clear((int)(All.DepthBufferBit | All.ColorBufferBit));
 			
@@ -231,34 +241,24 @@ namespace Caulker {
 			//
 			// Draw all the layers
 			//
-			foreach (var d in _draws) {
+			foreach (var d in _drawables) {
 				d.Draw(Camera, time);
 			}
 
 			if (ShowSun) {
 				GL.Disable(All.Lighting);
 				GL.Disable(All.ColorMaterial);
-				
-//				if (_gesture == WorldView3d.GestureType.Rotating) {
-//					var verts = new Vector3[2];
-//					var ppp = Location.SunLocation(DateTime.UtcNow.AddHours(-12));
-//					verts[0] = ppp.ToPositionAboveSeaLevel(0);
-//					verts[1] = ppp.ToPositionAboveSeaLevel(1000);
-//					GL.Color4(0, 1.0f, 0, 1.0f);
-//					GL.VertexPointer(3, All.Float, 0, verts);
-//					GL.DrawArrays(All.Lines, 0, 2);			
-//					Console.WriteLine (Camera.LookAt);
-//					Console.WriteLine (ppp);
-//				}
-
 			}
 
 			SwapBuffers();
+			
+			frameCount++;
 		}
 		
 		public void AddDrawable (IDrawable drawable)
 		{
-			_draws.Add(drawable);
+			_drawables.Add (drawable);
+			_drawablesNeedingLoad.Add (drawable);
 		}
 		
 		#endregion

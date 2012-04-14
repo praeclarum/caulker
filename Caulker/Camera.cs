@@ -216,7 +216,7 @@ namespace Caulker
 				_aspect = (float)Width / (float)Height;
 			}
 		}
-
+		
 		public void Execute (CameraMan man)
 		{
 			if (man.Dirty || _dirty) {			
