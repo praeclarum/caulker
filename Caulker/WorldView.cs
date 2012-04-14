@@ -45,13 +45,16 @@ namespace Caulker {
 		public double WallTimeElapsed { get; set; }
 	}
 
-	public interface IDrawable {
-		void Draw(Camera cam, SimTime t);
-		void OnStopDrawing();
+	public interface IDrawable
+	{
+		void Draw (Camera cam, SimTime t);
+		void OnStopDrawing ();
 	}
 		
 	[MonoTouch.Foundation.Register("WorldView")]
-	public class WorldView : iPhoneOSGameView {
+	public class WorldView : iPhoneOSGameView
+	{
+		uint _depthRenderbuffer;
 
 		double _lastT = new NSDate().SecondsSinceReferenceDate;		
 
@@ -62,22 +65,45 @@ namespace Caulker {
 		public Camera Camera { get; private set; }
 		public CameraMan CameraMan { get; set; }
 		
+		Location _sunLoc;
 		public bool ShowSun { get; set; }
 		
-		Location _sunLoc;
+		[Export ("layerClass")]
+		public static Class LayerClass()
+		{
+			return iPhoneOSGameView.GetLayerClass ();
+		}
+	
+		[Export ("initWithCoder:")]
+		public WorldView (NSCoder coder) : base (coder)
+		{
+			Initialize();
+		}
+		
+		public WorldView (RectangleF frame) : base (frame)
+		{
+			Initialize();
+		}
 
-	    void Initialize() {
-			
+		protected override void ConfigureLayer(CAEAGLLayer eaglLayer)
+		{
+			eaglLayer.Opaque = true;
+		}
+		
+	    void Initialize ()
+		{
+			LayerRetainsBacking = true;
 			LayerColorFormat    = EAGLColorFormat.RGBA8;
 			ContextRenderingApi = EAGLRenderingAPI.OpenGLES1;
+			
+			MultipleTouchEnabled = true;
 			
 			var now = DateTime.UtcNow;
 			_sunLoc = Location.SunLocation(now);
 	        Camera = new Camera();
 			CameraMan = new BlimpCameraMan(
-	            new Location(-122.3352, 47.640),
-	            new Location(-122.3352, 47.650));
-			MultipleTouchEnabled = true;
+	            new Location(-122.3352, 47.645),
+	            new Location(-122.3352, 47.6453));
 			Unload += HandleUnload;
 	    }
 
@@ -86,9 +112,63 @@ namespace Caulker {
 			foreach (var d in _draws) {
 				d.OnStopDrawing();
 			}
-        }		
+        }
+		
+		protected override void CreateFrameBuffer ()
+		{
+			base.CreateFrameBuffer ();
+			
+			//
+			// Enable the depth buffer
+			//
+			var sz = Size;
+			GL.Oes.GenRenderbuffers(1, ref _depthRenderbuffer);
+			GL.Oes.BindRenderbuffer(All.RenderbufferOes, _depthRenderbuffer);
+			GL.Oes.RenderbufferStorage(All.RenderbufferOes, All.DepthComponent16Oes, sz.Width, sz.Height);
+			GL.Oes.FramebufferRenderbuffer(All.FramebufferOes, All.DepthAttachmentOes, All.RenderbufferOes, _depthRenderbuffer);
+		}
+		
+		#region DisplayLink support
+		
+		int _frameInterval = 0;
+		CADisplayLink _displayLink;
+		bool _isRendering;
+				
+		public void StartRendering ()
+		{
+			if (_isRendering)
+				return;
+			
+			CreateFrameBuffer ();
+			CADisplayLink displayLink = UIScreen.MainScreen.CreateDisplayLink (this, new Selector ("drawFrame"));
+			displayLink.FrameInterval = _frameInterval;
+			displayLink.AddToRunLoop (NSRunLoop.Current, NSRunLoop.NSDefaultRunLoopMode);
+			_displayLink = displayLink;
+			
+			_isRendering = true;
+		}
+		
+		public void StopRendering ()
+		{
+			if (!_isRendering)
+				return;
+			_displayLink.Invalidate ();
+			_displayLink = null;
+			DestroyFrameBuffer ();
+			_isRendering = false;
+		}
+		
+		[Export ("drawFrame")]
+		void DrawFrame ()
+		{
+			OnRenderFrame (new FrameEventArgs ());
+		}
+		
+		#endregion
+		
+		#region Drawing
 
-		protected override void OnRenderFrame(FrameEventArgs e)
+		protected override void OnRenderFrame (FrameEventArgs e)
 		{
 			base.OnRenderFrame (e);
 			
@@ -173,13 +253,17 @@ namespace Caulker {
 
 			}
 
-			
 			SwapBuffers();
 		}
-	    		
-		public void AddDrawable(IDrawable drawable) {
+		
+		public void AddDrawable (IDrawable drawable)
+		{
 			_draws.Add(drawable);
 		}
+		
+		#endregion
+	    		
+		#region Gesture recognition
 				
 		enum GestureType {
 			None,
@@ -285,47 +369,7 @@ namespace Caulker {
 			}
 		}
 		
-
-		
-		[Export ("layerClass")]
-		public static Class LayerClass()
-		{
-			return iPhoneOSGameView.GetLayerClass ();
-		}
-	
-		[Export ("initWithCoder:")]
-		public WorldView (NSCoder coder) : base (coder)
-		{
-			LayerRetainsBacking = true;
-			Initialize();
-		}
-		
-		public WorldView (RectangleF frame) : base (frame) {
-			LayerRetainsBacking = true;
-			Initialize();
-		}
-
-		protected override void ConfigureLayer(CAEAGLLayer eaglLayer)
-		{
-			eaglLayer.Opaque = true;
-		}
-		
-		
-		uint _depthRenderbuffer;
-		
-		protected override void CreateFrameBuffer ()
-		{
-			base.CreateFrameBuffer ();
-			
-			//
-			// Enable the depth buffer
-			//
-			var sz = Size;
-			GL.Oes.GenRenderbuffers(1, ref _depthRenderbuffer);
-			GL.Oes.BindRenderbuffer(All.RenderbufferOes, _depthRenderbuffer);
-			GL.Oes.RenderbufferStorage(All.RenderbufferOes, All.DepthComponent16Oes, sz.Width, sz.Height);
-			GL.Oes.FramebufferRenderbuffer(All.FramebufferOes, All.DepthAttachmentOes, All.RenderbufferOes, _depthRenderbuffer);
-		}		
+		#endregion
     }
 	
     public class Geometry {
@@ -382,5 +426,4 @@ namespace Caulker {
 			GL.Enable(All.DepthTest);
         }
     }
-
 }
