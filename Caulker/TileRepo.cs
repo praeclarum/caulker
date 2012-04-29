@@ -26,11 +26,16 @@ using System.IO;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
-using MonoTouch.UIKit;
-using MonoTouch.CoreGraphics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using Caulker;
+#if MONOTOUCH
+using MonoTouch.UIKit;
+using MonoTouch.CoreGraphics;
+#endif
+#if MONODROID
+using Android.Graphics;
+#endif
 
 namespace Caulker
 {
@@ -211,7 +216,11 @@ namespace Caulker
 		
 		public TileTextureRepo (TileSource source)
 		{
-			DataDir = Path.GetFullPath("../Library/Cache/TileData");
+			//DataDir = Path.GetFullPath("../Library/Cache/TileData");
+
+            // Replace with generically "safe" root folder usable by iOS and Android
+            var appRoot = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            DataDir = System.IO.Path.Combine(appRoot, "TileData");
 			if (!Directory.Exists(DataDir)) {
 				Directory.CreateDirectory(DataDir);
 			}
@@ -327,7 +336,7 @@ namespace Caulker
 		
 		string GetTilePath(TileName name) {
 			var filename = _source.Name + "-" + name.Zoom + "-" + name.X + "-" + name.Y + _source.FileExtension;
-			return Path.Combine(DataDir, filename);
+			return System.IO.Path.Combine(DataDir, filename);
 		}
 		
 		void FindDiskTiles() {
@@ -353,14 +362,14 @@ namespace Caulker
 						}
 					}
 				}
-				Console.WriteLine ("Found {0} on disk tiles for {1}", _onDiskTiles.Count, _source.Name);
+				Console.WriteLine ("Found {0} on-disk tiles for {1}", _onDiskTiles.Count, _source.Name);
 			}
 		}
 		
 		void LoadThread() {
-			
+#if MONOTOUCH			
 			using (var pool = new MonoTouch.Foundation.NSAutoreleasePool()) {
-			
+#endif
 				while (_continueWorkingInBackground) {
 					TileCollectionItem q = null;
 					lock (_loadingTiles) {
@@ -376,8 +385,12 @@ namespace Caulker
 						
 						try {
 							var filename = GetTilePath(req);
+#if MONOTOUCH
 							using (var image = UIImage.FromFileUncached(filename)) {
-								
+#endif	
+#if MONODROID
+							using (var image = BitmapFactory.DecodeFile(filename)) {
+#endif				
 								if (image != null) {
 									var data = TextureData.FromUIImage(image);
 									lock (_loadedTiles) {
@@ -405,14 +418,16 @@ namespace Caulker
 							}
 						}
 					}
-				}
-			}
-		}
+                }
+#if MONOTOUCH 
+            } 
+#endif
+        }
 		
 		void DownloadThread() {
-			
+#if MONOTOUCH			
 			using (var pool = new MonoTouch.Foundation.NSAutoreleasePool()) {
-				
+#endif
 				while (_continueWorkingInBackground) {
 					TileCollectionItem q;
 					lock (_downloadingTiles) {
@@ -426,7 +441,7 @@ namespace Caulker
 						var req = q.Name;
 						var url = _source.GetTileUrl(req);
 						var filename = GetTilePath(req);
-						var tempFile = Path.GetTempFileName();
+						var tempFile = System.IO.Path.GetTempFileName();
 						
 						var downloadedSuccessfully = Http.Download(url, tempFile);
 						
@@ -451,9 +466,11 @@ namespace Caulker
 							_wakeupDownloader.WaitOne(TimeSpan.FromSeconds(5));
 						}
 					}
-				}
-			}
-		}
+                }
+#if MONOTOUCH 
+            } 
+#endif
+        }
 		
 		void RemoveTilesFromMemory() {
 			_glTiles.ForEach(DeleteTextureMemory);
@@ -481,12 +498,21 @@ namespace Caulker
 
 	public class TextureData : IDisposable
 	{
+#if MONOTOUCH
 		public IntPtr Data { get; private set; }
+#else
+        public int[] Data { get; private set; }
+#endif
 		public TexturePixelFormat PixelFormat { get; private set; }
 		public int Width { get; private set; }
 		public int Height { get; private set; }
-		
+
+#if MONOTOUCH
 		public TextureData(IntPtr data, TexturePixelFormat pixelFormat, int width, int height) {
+#else
+        public TextureData(int[] data, TexturePixelFormat pixelFormat, int width, int height)
+        {
+#endif
 			Data = data;
 			PixelFormat = pixelFormat;
 			Width = width;
@@ -503,7 +529,8 @@ namespace Caulker
 			Dispose (true);
 			GC.SuppressFinalize (this);
 		}
-		
+
+#if MONOTOUCH		
 		protected virtual void Dispose (bool disposing)
 		{
 			if (Data != IntPtr.Zero) {
@@ -512,6 +539,15 @@ namespace Caulker
 				Data = IntPtr.Zero;
 			}
 		}
+#else
+        protected virtual void Dispose(bool disposing)
+        {
+            if (Data != null) {
+                //System.Diagnostics.Debug.WriteLine ("Dispose in-memory tile");
+                Data = null;
+            }
+        }
+#endif
 		
 		public int CreateGLTexture()
 		{
@@ -546,7 +582,8 @@ namespace Caulker
 			
 			return texture;
 		}
-		
+
+#if MONOTOUCH
 		public static TextureData FromUIImage(UIImage uiImage) {
 			if (uiImage == null) throw new ArgumentNullException("uiImage");
 			var image = uiImage.CGImage;
@@ -616,12 +653,47 @@ namespace Caulker
 			
 			return new TextureData(data, pixelFormat, width, height);
 		}		
+#endif
+#if MONODROID
+        /// <summary>
+        /// Android specific FromUIImage
+        /// Currently just stores image pixel data in a managed code (i.e. Data is an int[])
+        /// This may be bad...if so then could implement a pointer based approach like the Monotouch version above.
+        /// </summary>
+        public static TextureData FromUIImage(Bitmap image)
+        {
+            if (image == null) throw new ArgumentNullException("image");
 
+            var pixelFormat = TexturePixelFormat.RGBA8888;
+
+            var config = image.GetConfig();
+            if (config == Bitmap.Config.Rgb565)
+                pixelFormat = TexturePixelFormat.RGB565;
+            else if (config == Bitmap.Config.Alpha8)
+                pixelFormat = TexturePixelFormat.A8;
+
+            var width = image.Width;
+            var height = image.Height;
+
+            int[] data = new int[width * height];
+
+            image.GetPixels(data, 0, width, 0, 0, width, height);
+
+            return new TextureData(data, pixelFormat, width, height);
+        }
+#endif
 	}
 
+
 	public static class GLEx {
-		
+
+#if MONOTOUCH
 		public static int ToGLTexture(this UIImage uiImage) {
+#endif
+#if MONODROID
+        public static int ToGLTexture(this Bitmap uiImage)
+        {
+#endif
 			using (var d = TextureData.FromUIImage(uiImage)) {
 				return d.CreateGLTexture();
 			}

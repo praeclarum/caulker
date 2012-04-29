@@ -3,5 +3,11 @@
 *.userprefs
 *.pidb
 Caulker/bin
+Caulker/obj
 CaulkerDemo/bin
 CaulkerDemo/obj
+CaulkerDemo.Droid/obj
+CaulkerDemo.Droid/bin
+Caulker.Droid/obj
+Caulker.Droid/bin
+*.suo

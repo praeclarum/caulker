@@ -1,0 +1,67 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Caulker", "Caulker\Caulker.csproj", "{7C5ABECA-A834-448F-8A03-AE2C19791778}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Caulker.Droid", "Caulker.Droid\Caulker.Droid.csproj", "{877DF904-1A8C-4579-AE8F-66B321CD2E7E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaulkerDemo.Droid", "CaulkerDemo.Droid\CaulkerDemo.Droid.csproj", "{4F2B7C0C-32B4-40DF-B4FB-B88A42673270}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|iPhone = Debug|iPhone
+		Debug|iPhoneSimulator = Debug|iPhoneSimulator
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Release|Any CPU = Release|Any CPU
+		Release|iPhone = Release|iPhone
+		Release|iPhoneSimulator = Release|iPhoneSimulator
+		Release|Mixed Platforms = Release|Mixed Platforms
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7C5ABECA-A834-448F-8A03-AE2C19791778}.Debug|Any CPU.ActiveCfg = Debug|iPhone
+		{7C5ABECA-A834-448F-8A03-AE2C19791778}.Debug|iPhone.ActiveCfg = Debug|iPhone
+		{7C5ABECA-A834-448F-8A03-AE2C19791778}.Debug|iPhone.Build.0 = Debug|iPhone
+		{7C5ABECA-A834-448F-8A03-AE2C19791778}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
+		{7C5ABECA-A834-448F-8A03-AE2C19791778}.Debug|iPhoneSimulator.Build.0 = Debug|iPhoneSimulator
+		{7C5ABECA-A834-448F-8A03-AE2C19791778}.Debug|Mixed Platforms.ActiveCfg = Debug|iPhone
+		{7C5ABECA-A834-448F-8A03-AE2C19791778}.Debug|Mixed Platforms.Build.0 = Debug|iPhone
+		{7C5ABECA-A834-448F-8A03-AE2C19791778}.Release|Any CPU.ActiveCfg = Release|iPhone
+		{7C5ABECA-A834-448F-8A03-AE2C19791778}.Release|iPhone.ActiveCfg = Release|iPhone
+		{7C5ABECA-A834-448F-8A03-AE2C19791778}.Release|iPhone.Build.0 = Release|iPhone
+		{7C5ABECA-A834-448F-8A03-AE2C19791778}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
+		{7C5ABECA-A834-448F-8A03-AE2C19791778}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
+		{7C5ABECA-A834-448F-8A03-AE2C19791778}.Release|Mixed Platforms.ActiveCfg = Release|iPhone
+		{7C5ABECA-A834-448F-8A03-AE2C19791778}.Release|Mixed Platforms.Build.0 = Release|iPhone
+		{877DF904-1A8C-4579-AE8F-66B321CD2E7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{877DF904-1A8C-4579-AE8F-66B321CD2E7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{877DF904-1A8C-4579-AE8F-66B321CD2E7E}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{877DF904-1A8C-4579-AE8F-66B321CD2E7E}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{877DF904-1A8C-4579-AE8F-66B321CD2E7E}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{877DF904-1A8C-4579-AE8F-66B321CD2E7E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{877DF904-1A8C-4579-AE8F-66B321CD2E7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{877DF904-1A8C-4579-AE8F-66B321CD2E7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{877DF904-1A8C-4579-AE8F-66B321CD2E7E}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{877DF904-1A8C-4579-AE8F-66B321CD2E7E}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{877DF904-1A8C-4579-AE8F-66B321CD2E7E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{877DF904-1A8C-4579-AE8F-66B321CD2E7E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4F2B7C0C-32B4-40DF-B4FB-B88A42673270}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F2B7C0C-32B4-40DF-B4FB-B88A42673270}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F2B7C0C-32B4-40DF-B4FB-B88A42673270}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{4F2B7C0C-32B4-40DF-B4FB-B88A42673270}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{4F2B7C0C-32B4-40DF-B4FB-B88A42673270}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{4F2B7C0C-32B4-40DF-B4FB-B88A42673270}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{4F2B7C0C-32B4-40DF-B4FB-B88A42673270}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F2B7C0C-32B4-40DF-B4FB-B88A42673270}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F2B7C0C-32B4-40DF-B4FB-B88A42673270}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{4F2B7C0C-32B4-40DF-B4FB-B88A42673270}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{4F2B7C0C-32B4-40DF-B4FB-B88A42673270}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4F2B7C0C-32B4-40DF-B4FB-B88A42673270}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = CaulkerDemo\CaulkerDemo.csproj
+	EndGlobalSection
+EndGlobal
